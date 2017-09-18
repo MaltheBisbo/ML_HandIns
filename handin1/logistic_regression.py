@@ -68,7 +68,7 @@ def batch_grad_descent(X, y, w=None, reg=0, lr=1.0, rounds=10):
     if w is None: w = np.zeros(X.shape[1])    
     #lr = 1.0
     ### YOUR CODE HERE
-    for t in rounds:
+    for t in range(rounds):
         w -= lr*log_cost(X, y, w, reg)[1]
     ### END CODE
     return w
@@ -98,7 +98,7 @@ def mini_batch_grad_descent(X, y, w=None, reg=0, lr=0.1, batch_size=16, epochs=1
     if w is None: w = np.zeros(X.shape[1])
     ### YOUR CODE
     for t in range(epochs):
-        permutation = np.random.parmutation(y.shape[0])
+        permutation = np.random.permutation(y.shape[0])
         Xpermut = X[permutation]
         ypermut = y[permutation]
         for i in range(int(np.floor(y.shape[0]/batch_size))):

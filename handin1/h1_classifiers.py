@@ -99,12 +99,16 @@ class LogisticClassifier(MlModel):
           batch_size: scalar - number of elements per mini_batch
         """
         self.classes = np.sort(np.unique(y))
-        self.models = []
+        self.models = [None]*10
         ### YOUR CODE HERE 5-10 lines
-        
+        for i in range(10):
+            yi = np.array(y == i).astype(int)
+            model_i = LogisticClassifierTwoClass()
+            model_i.train(X, yi, reg, lr, epochs, batch_size)
+            self.models[i] = model_i
         ### END CODE
         assert len(self.models) == len(self.classes)
-
+        
     def predict(self, X):
         """ Predict class for each data point in X with this model
                 
@@ -116,7 +120,9 @@ class LogisticClassifier(MlModel):
          predictions: numpy array shape (n,) int, prediction on each input point 
         """
         pred = np.zeros(X.shape[0])
+        
         ### YOUR CODE HERE 1-3 lines
+        pred = np.array([x.probability(X) for x in self.models]).argmax(axis=1)
         ### END CODE
         assert pred.shape == (X.shape[0],)
         return pred
