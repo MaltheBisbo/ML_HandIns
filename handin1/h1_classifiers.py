@@ -122,7 +122,7 @@ class LogisticClassifier(MlModel):
         pred = np.zeros(X.shape[0])
         
         ### YOUR CODE HERE 1-3 lines
-        pred = np.array([x.probability(X) for x in self.models]).argmax(axis=1)
+        pred = np.array([x.probability(X) for x in self.models]).argmax(axis=0)
         ### END CODE
         assert pred.shape == (X.shape[0],)
         return pred
@@ -233,6 +233,11 @@ def run_validation(model, X, y, params, val_size=0.2, **kwargs):
     target = y[val_size+1:]
     acc = np.zeros(len(params))
     ### YOUR CODE HERE 5-10 lines
+    for i in range(len(params)):
+        model.train(val_train, val_target, params[i])
+        acc[i] = model_accuracy(model, train, target)
+    bestParam = np.argmax(acc)
+    model.train(val_train, val_target, params[bestParam])
     ### END CODE
     return model, acc
         
