@@ -76,14 +76,16 @@
 
 \subsubsection{Question 1}
 
-The running time of the batch gradient is: (Don't know if this is correct) \\ 
+The running time of batch gradient is: \\ 
 Preprocessing: $\mathcal{O}(n)$ \\
 Descent: $\mathcal{O}(epochs * logcost)$ \\
 Logcost: $\mathcal{O}(nd)$ (assuming naive matrix multiplication) \\
-In total: $\mathcal{O}(epochs * nd)$
+Gradient: $\mathcal{O}(nd)$ (assuming naive matrix multiplication) \\
+In total: $\mathcal{O}(epochs * nd)$ \\
+\\
+The running time of mini gradient descent is: 
+Toal: $\mathcal{O}(epochs * n/batchsize * batchsize * d) = \mathcal{O}(epochs * n d)$
 
-\begin{equation}
-\log softmax(z)_j = \log \left( \frac{e^{zj}}{\sum{i=1}^d e^{z_i}}\right) = - (zj - \log \sum{i=1}^d e^{z_i})
-\end{equation}
+
 
 \end{document}
