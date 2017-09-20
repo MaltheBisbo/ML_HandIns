@@ -184,7 +184,7 @@ def best_model(model):
     params = {}
     reg = [0]
     ### YOUR CODE HERE
-    params = {'batch_size': y_train.shape[0], 'epochs': 100}  # Allowed to change those?
+    #params = {'batch_size': 16, 'epochs': 5}  # Allowed to change those?
     reg = [10, 1,1e-1, 1e-2, 1e-3,1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15]
     ### END CODE
     reg = sorted(reg)

@@ -33,6 +33,9 @@ def softmax(X):
     """
     res = np.zeros(X.shape)
     ### YOUR CODE HERE no for loops please
+    c = np.max(X, axis=1)
+    denominator = np.log(np.sum(np.exp(X-c.reshape((c.shape[0], 1))), axis=1)) + c
+    res = np.exp(X - denominator.reshape((c.shape[0], 1)))
     ### END CODE
     return res
     
@@ -58,7 +61,10 @@ def soft_cost(X, Y, W, reg=0.0):
     cost = np.nan
     grad = np.zeros(W.shape)*np.nan
     ### YOUR CODE HERE
+    cost = -np.sum(np.sum(Y * np.log(softmax(X @ W)), axis=1)) / input_size + reg * np.sum(np.sum(W[1:]*W[1:]))
+    grad = -X.T @ (Y - softmax(X @ W)) / input_size + reg * np.r_[np.zeros(W.shape[1]).reshape((1, W.shape[1])), 2 * W[1:]]
     ### END CODE
+    
     return cost, grad
 
 def batch_grad_descent(X, Y, W=None, reg=0.0, lr=0.5, rounds=10):
@@ -76,6 +82,8 @@ def batch_grad_descent(X, Y, W=None, reg=0.0, lr=0.5, rounds=10):
     """
     if W is None: W = np.zeros((X.shape[1], Y.shape[1]))
     ### YOUR CODE HERE
+    for t in range(rounds):
+        W -= lr*soft_cost(X, Y, W, reg)[1]
     ### END CODE
     return W
 
@@ -96,8 +104,15 @@ def mini_batch_grad_descent(X, Y, W=None, reg=0.0, lr=0.1, epochs=10, batch_size
     Returns: 
         w: numpy array shape (d,) learned weight vector w
     """
-    if W is None: W = np.zeros((X.shape[1],Y.shape[1]))
+    if W is None: W = np.zeros((X.shape[1], Y.shape[1]))
     ### YOUR CODE HERE
+    for t in range(epochs):
+        permutation = np.random.permutation(Y.shape[0])
+        Xpermut = X[permutation]
+        Ypermut = Y[permutation]
+        for i in range(int(np.floor(Y.shape[0]/batch_size))):
+            W -= lr*soft_cost(Xpermut[i*batch_size:(i+1)*batch_size, :],
+                              Ypermut[i*batch_size:(i+1)*batch_size, :], W, reg)[1]
     ### END CODE
     return W
 

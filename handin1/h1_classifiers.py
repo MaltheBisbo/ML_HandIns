@@ -148,7 +148,8 @@ class SoftmaxClassifier(MlModel):
         y_as_matrix = np.zeros((y.size, num_classes))
         y_as_matrix[np.arange(y.shape[0]), y] = 1
         X = np.c_[np.ones(X_.shape[0]), X_] # add bias variable 1
-        ### YOUR CODE HERE        
+        ### YOUR CODE HERE
+        self.w = soft_reg.mini_batch_grad_descent(X, y_as_matrix, self.w, reg, lr, epochs, batch_size)
         ### END CODE
             
     def predict(self, X_):
@@ -164,6 +165,7 @@ class SoftmaxClassifier(MlModel):
         X = np.c_[np.ones(X_.shape[0]), X_] # add bias variable 1
         pred = np.zeros(X.shape[0])
         ### YOUR CODE HERE
+        pred = np.argmax(soft_reg.softmax(X @ self.w), axis=1)
         ### END CODE
         return pred
         
@@ -176,6 +178,7 @@ class SoftmaxClassifier(MlModel):
         X = np.c_[np.ones(X_.shape[0]), X_] # add bias variable 1
         prob = np.zeros(X.shape[0], self.num_classes)
         ### YOUR CODE HERE
+        prob = soft_reg.softmax(X @ self.w)
         ### END CODE
         return prob
 
@@ -209,7 +212,6 @@ def model_accuracy(model, X, y):
     ### END CODE
     return acc
 
-
     
 def run_validation(model, X, y, params, val_size=0.2, **kwargs):
     """ Compute the best regularization parameter using validation and return a model trained with that parameter set on the full data
@@ -233,11 +235,13 @@ def run_validation(model, X, y, params, val_size=0.2, **kwargs):
     target = y[val_size+1:]
     acc = np.zeros(len(params))
     ### YOUR CODE HERE 5-10 lines
+    #batch_size = kwargs['batch_size']
+    #epochs = kwargs['epochs']
     for i in range(len(params)):
-        model.train(val_train, val_target, params[i])
-        acc[i] = model_accuracy(model, train, target)
+        model.train(train, target, params[i])
+        acc[i] = model_accuracy(model, val_train, val_target)
     bestParam = np.argmax(acc)
-    model.train(val_train, val_target, params[bestParam])
+    model.train(train, target, params[bestParam])
     ### END CODE
     return model, acc
         
