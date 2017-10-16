@@ -1,0 +1,2 @@
+model_checkpoint_path: "/Users/malthebisbo/Documents/GitHub/ML_HandIns/handin2/model_weights/cnn_h1024.weight"
+all_model_checkpoint_paths: "/Users/malthebisbo/Documents/GitHub/ML_HandIns/handin2/model_weights/cnn_h1024.weight"

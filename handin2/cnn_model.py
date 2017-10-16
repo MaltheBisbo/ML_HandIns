@@ -1,6 +1,5 @@
 import os
 import tensorflow as tf
-import numpy as np
 from model import Model as TfModel
 
 class Config(object):
@@ -22,7 +21,8 @@ class Config(object):
     # compute the output size of the convolutional layers i.e. how many values do we get back after the two steps of convolution and pooling.    
     conv_output_size = int(0)
     
-    ### YOUR CODE HERE 
+    ### YOUR CODE HERE
+    conv_output_size = 64 * 7 * 7
     ### END CODE
     hidden_size = 1024
     dropout = 0.5 #
@@ -71,6 +71,10 @@ class ConvolutionalModel(TfModel):
         (Don't change the variable names)
         """
         ### YOUR CODE HERE
+        self.input_placeholder = tf.placeholder(tf.float32, shape=[None, self.config.n_features])
+        self.labels_placeholder = tf.placeholder(tf.int32, shape=[None])
+        self.dropout_placeholder = tf.placeholder(tf.float32)
+        self.weight_decay_placeholder = tf.placeholder(tf.float32)
         ### END CODE
 
     def create_feed_dict(self, inputs_batch, labels_batch=None, weight_decay = 0, dropout=1):
@@ -96,6 +100,12 @@ class ConvolutionalModel(TfModel):
             feed_dict: dict, mapping from placeholders to values.
         """
         ### YOUR CODE HERE
+        feed_dict = {}
+        feed_dict[self.input_placeholder] = inputs_batch
+        if labels_batch is not None:
+            feed_dict[self.labels_placeholder] = labels_batch
+        feed_dict[self.weight_decay_placeholder] = weight_decay
+        feed_dict[self.dropout_placeholder] = dropout
         ### END CODE
         return feed_dict
 
@@ -151,10 +161,27 @@ class ConvolutionalModel(TfModel):
         """
 
         x = self.input_placeholder
-        x_image = tf.reshape(x, [-1, 28, 28, 1]) # (batchsize) inputs of 28 x 28 and 1 channel
+        x_image = tf.reshape(x, [-1, 28, 28, 1])  # (batchsize) inputs of 28 x 28 and 1 channel
         xavier_init = tf.contrib.layers.xavier_initializer()
+        print(x)
+        ### YOUR CODE HERE
+        self.C1 = tf.Variable(xavier_init(self.config.conv_layers[0]))
+        self.C2 = tf.Variable(xavier_init(self.config.conv_layers[1]))
+        Wshape = (self.config.conv_output_size, self.config.hidden_size)
+        self.W = tf.Variable(xavier_init(Wshape))
+        Ushape = (self.config.hidden_size, self.config.n_classes)
+        self.U = tf.Variable(xavier_init(Ushape))
+        b1 = tf.Variable(tf.zeros([self.config.conv_layers[0][-1], ], tf.float32))
+        b2 = tf.Variable(tf.zeros([self.config.conv_layers[1][-1], ], tf.float32))
+        b3 = tf.Variable(tf.zeros([self.config.hidden_size, ], tf.float32))
+        b4 = tf.Variable(tf.zeros([self.config.n_classes, ], tf.float32))
 
-        ### YOUR CODE HERE                
+        l1 = tf.nn.max_pool(tf.nn.relu(tf.nn.conv2d(x_image, self.C1, strides=[1,1,1,1], padding='SAME') + b1), ksize=[1,2,2,1], strides=[1,2,2,1], padding='SAME')
+        l2 = tf.nn.max_pool(tf.nn.relu(tf.nn.conv2d(l1, self.C2, strides=[1,1,1,1], padding='SAME') + b2), ksize=[1,2,2,1], strides=[1,2,2,1], padding='SAME')
+        f = tf.reshape(l2, [-1, self.config.conv_output_size])
+        h = tf.nn.relu(tf.matmul(f,self.W) + b3)
+        h_drop = tf.nn.dropout(h, self.dropout_placeholder)
+        pred = tf.matmul(h_drop, self.U) + b4
         ### END CODE        
         return pred
 
@@ -177,6 +204,8 @@ class ConvolutionalModel(TfModel):
             loss: A 0-d tensor (scalar)
         """
         ### YOUR CODE HERE
+        loss = tf.reduce_sum(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=pred, labels=self.labels_placeholder))
+        reg = self.weight_decay_placeholder * (tf.reduce_sum(tf.multiply(self.W, self.W)) + tf.reduce_sum(tf.multiply(self.U, self.U)))
         ### END CODE
         return loss + reg
 
@@ -200,6 +229,8 @@ class ConvolutionalModel(TfModel):
             train_op: The Op for training.
         """
         ### YOUR CODE HERE
+        opt = tf.train.AdamOptimizer(self.config.lr)
+        train_op = opt.minimize(loss)
         ### END CODE
         return train_op
 

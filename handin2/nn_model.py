@@ -57,6 +57,10 @@ class FeedForwardModel(TfModel):
         (Don't change the variable names)
         """
         ### YOUR CODE HERE
+        self.input_placeholder = tf.placeholder(tf.float32, shape=[None, self.config.n_features])
+        self.labels_placeholder = tf.placeholder(tf.int32, shape=[None])
+        self.dropout_placeholder = tf.placeholder(tf.float32)
+        self.weight_decay_placeholder = tf.placeholder(tf.float32)
         ### END CODE
 
     def create_feed_dict(self, inputs_batch, labels_batch=None, weight_decay = 0, dropout=1):
@@ -83,6 +87,11 @@ class FeedForwardModel(TfModel):
         
         feed_dict = {}
         ### YOUR CODE HERE
+        feed_dict[self.input_placeholder] = inputs_batch
+        if labels_batch is not None:
+            feed_dict[self.labels_placeholder] = labels_batch
+        feed_dict[self.weight_decay_placeholder] = weight_decay
+        feed_dict[self.dropout_placeholder] = dropout
         ### END CODE
         return feed_dict
 
@@ -124,6 +133,13 @@ class FeedForwardModel(TfModel):
         self.W = tf.Variable(xavier_initializer(Wshape))
         x = self.input_placeholder
         ### YOUR CODE HERE
+        Ushape = (self.config.hidden_size, self.config.n_classes)
+        self.U = tf.Variable(xavier_initializer(Ushape))
+        b1 = tf.Variable(tf.zeros([self.config.hidden_size, ], tf.float32))
+        b2 = tf.Variable(tf.zeros([self.config.n_classes, ], tf.float32))
+        h = tf.nn.relu(tf.matmul(x,self.W) + b1)
+        h_drop = tf.nn.dropout(h, self.dropout_placeholder)
+        pred = tf.matmul(h_drop, self.U) + b2
         ### END CODE
         return pred
 
@@ -144,6 +160,8 @@ class FeedForwardModel(TfModel):
             loss: A 0-d tensor (scalar)
         """
         ### YOUR CODE HERE
+        loss = tf.reduce_sum(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=pred, labels=self.labels_placeholder))
+        reg = self.weight_decay_placeholder * (tf.reduce_sum(tf.multiply(self.W, self.W)) + tf.reduce_sum(tf.multiply(self.U, self.U)))
         ### END CODE
         return loss + reg
 
@@ -166,6 +184,8 @@ class FeedForwardModel(TfModel):
             train_op: The Op for training.
         """
         ### YOUR CODE HERE
+        opt = tf.train.AdamOptimizer(self.config.lr)
+        train_op = opt.minimize(loss)
         ### END CODE
         return train_op
 
