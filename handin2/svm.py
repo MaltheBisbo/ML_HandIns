@@ -33,16 +33,16 @@ def load_model(name):
 def svc_cv(X, Y, kernel):
     if kernel == 'rbf':
         clf = svm.SVC(kernel='rbf')
-        parameters = {'C': [1, 10, 100], 'gamma': [0.01, 0.1, 1]}
+        parameters = {'C': [0.1, 1, 10, 100], 'gamma': [0.01, 0.1, 1, 10]}
     if kernel == 'poly2':
         clf = svm.SVC(kernel='poly', degree=2)
-        parameters = {'C': [1, 10, 100], 'gamma': [0.01, 0.1, 1]}
+        parameters = {'C': [0.1, 1, 10, 100], 'gamma': [0.01, 0.1, 1, 10], 'coef0': [0.01, 0.1, 1, 10]}
     if kernel == 'linear':
         clf = svm.SVC(kernel='linear')
-        parameters = {'C': [1, 10, 100], 'gamma': [0.01, 0.1, 1]}
+        parameters = {'C': [0.01, 0.1, 1, 10, 100]}
     if kernel == 'poly3':
         clf = svm.SVC(kernel='poly', degree=3)
-        parameters = {'C': [1, 10, 100], 'gamma': [0.01, 0.1, 1]}
+        parameters = {'C': [0.1, 1, 10, 100], 'gamma': [0.01, 0.1, 1, 10], 'coef0': [0.01, 0.1, 1, 10]}
     gs_clf = GridSearchCV(clf, parameters)
     gs_clf = gs_clf.fit(X, Y)
     return gs_clf.cv_results_
@@ -82,6 +82,8 @@ if __name__=="__main__":
         cv = svc_cv(digs, labs, 'linear')
         dataframe = pd.DataFrame(cv)
         relevant = dataframe.filter(['mean_test_score', 'mean_train_score', 'std_test_score', 'std_train_score', 'param_C', 'param_gamma', 'mean_fit_time']).sort_values(['mean_test_score'])
+        filename = 'results/svc_lin.csv'
+        relevant.to_csv(filename, index=False)
         display(relevant)
         ### END CODE        
     if args.poly2:
@@ -90,6 +92,8 @@ if __name__=="__main__":
         cv = svc_cv(digs, labs, 'poly2')
         dataframe = pd.DataFrame(cv)
         relevant = dataframe.filter(['mean_test_score', 'mean_train_score', 'std_test_score', 'std_train_score', 'param_C', 'param_gamma', 'mean_fit_time']).sort_values(['mean_test_score'])
+        filename = 'results/svc_poly2.csv'
+        relevant.to_csv(filename, index=False)
         display(relevant)
         ### END CODE
     if args.poly3:
@@ -98,6 +102,8 @@ if __name__=="__main__":
         cv = svc_cv(digs, labs, 'poly3')
         dataframe = pd.DataFrame(cv)
         relevant = dataframe.filter(['mean_test_score', 'mean_train_score', 'std_test_score', 'std_train_score', 'param_C', 'param_gamma', 'mean_fit_time']).sort_values(['mean_test_score'])
+        filename = 'results/svc_poly3.csv'
+        relevant.to_csv(filename, index=False)
         display(relevant)
         ### END CODE
     if args.rbf:
@@ -106,6 +112,8 @@ if __name__=="__main__":
         cv = svc_cv(digs, labs, 'rbf')
         dataframe = pd.DataFrame(cv)
         relevant = dataframe.filter(['mean_test_score', 'mean_train_score', 'std_test_score', 'std_train_score', 'param_C', 'param_gamma', 'mean_fit_time']).sort_values(['mean_test_score'])
+        filename = 'results/svc_rbf.csv'
+        relevant.to_csv(filename, index=False)        
         display(relevant)
         ### END CODE
         
