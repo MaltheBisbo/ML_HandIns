@@ -8,17 +8,17 @@ files = ['cnn_model.py',
          'model_stats.py',
          'nn_model.py',
          'svm.py',
-         'predict.py',
+#         'predict.py',
          'visualize_models.py']
 
-files = ['cnn_model_solved.py',
-         'h2_util.py',
-         'model.py',
-         'model_stats.py',
-         'nn_model_solved.py',
-         'svm_solved.py',
-         'predict.py',
-         'visualize_models.py']
+#files = ['cnn_model_solved.py',
+#         'h2_util.py',
+#         'model.py',
+#         'model_stats.py',
+#         'nn_model_solved.py',
+#         'svm_solved.py',
+#         'predict.py',
+#         'visualize_models.py']
 
 results = ['cnn_1024_early_stopping.csv',
            'cnn_1024_confusion_matrix.csv',
