@@ -73,6 +73,57 @@ def translate_sequence_to_states(sequence):
     return states
 
 
+def translate_sequence_to_states2(sequence):
+    N = len(sequence)
+    states = np.array([])
+    i = 0
+    while i < N:
+        if coding[i:i+3] == 'CCC' and isStartF(sequence[i:i+3]):
+            states = np.append(states, checkStart(sequence[i: i + 3])[0])
+            while coding[i: i + 3] == 'CCC' or not isStopF(sequence[i : i + 3]):
+                states = np.append(states, [10, 11, 12], axis = 0)
+                i += 3
+            states = np.append(states, checkEndF(sequence[i : i + 3]), axis = 0)
+            i += 1
+            
+        elif coding[i:i+3] == 'RRR' and isStartR(sequence[i:i+3]):
+            if states[-1] == 24 or states[-1] == 27 or states[-1] == 30:        
+                while coding[i+1] == 'R' or not isStopR(sequence[i : i + 3]):
+                    states = np.append(states, [31, 32, 33], axis = 0)
+                    i += 3
+                states = np.append(states, checkEndR(sequence[i : i + 3]), axis = 0)
+                i += 1
+        else:
+            states = np.append(states, [0])
+            i += 1
+
+        
+def isStartF(s):
+    if s == 'ATG' or s == 'GTG' or s == 'TTG':
+        return True
+    else:
+        return False
+
+    
+def isStartR(s):
+    if s == 'TTA' or s == 'CTA' or s == 'TCA':
+        return True
+    else:
+        return False
+
+def isStopF(s):
+    if s == 'TAG' or s == 'TGA' or s == 'TAA':
+        return True
+    else:
+        return False
+
+def isStopR(s):
+    if s == 'CAT' or s == 'CAC' or s == 'CAA':
+        return True
+    else:
+        return False
+
+
 def checkStart(string):
     if string == 'ATG':
         return np.array([1, 2, 3]), 3
@@ -129,6 +180,14 @@ def calculateA(states):
 
     for i in range(42):
         A[i] /= np.sum(A[i])
+
+    return A
+
+def calculatePi():
+    pi = np.zeros(42)
+    pi[0] = 4
+    pi[7] = 1
+        
 
 
 genomes = {}
