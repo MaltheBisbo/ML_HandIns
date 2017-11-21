@@ -73,22 +73,86 @@ def translate_sequence_to_states(sequence):
     return states
 
 
-def translate_sequence_to_states2(sequence):
+### TEST FOR HMM 7 ###
+def createZ7(annotation):
+    N = len(annotation)
+    i = 0
+    Z = np.zeros(N)
+
+    while i < N:
+        if i == 0:
+            Z[i] = 3
+            i += 1
+        while annotation[i: i + 3] == 'CCC':
+            Z[i: i + 3] = np.array([4, 5, 6])
+            i += 3
+        while annotation[i: i + 3] == 'RRR':
+            Z[i: i + 3] = np.array([2, 1, 0])
+            i += 3
+        Z[i] = 3
+        i += 1
+        
+    return Z
+
+
+def createA7(Z):
+    A = np.zeros((7, 7))
+    for i in range(Z.shape[0] - 1):
+        a, b = int(Z[i]), int(Z[i + 1])
+        A[a, b] += 1
+
+    for i in range(7):
+        A[i] /= np.sum(A[i])
+
+    return A
+
+
+def createPi7():
+    Pi = np.zeros(7)
+    Pi[3] = 1
+
+    return Pi
+
+
+def createPhi7(Z, sequence):
+    Phi = np.zeros((7, 4))
+    for i in range(Z.shape[0]):
+        state = int(Z[i])
+        emission = int(sequence[i])
+        Phi[state, emission] += 1
+
+    for i in range(7):
+        Phi[i] /= np.sum(Phi[i])
+
+    return Phi
+
+### END TEST FOR HMM 7 ###
+
+
+def createOmega(A, Phi, Pi, sequence):
+    N = len(sequence) # Number of steps in the markov chain
+    K = 7 # Number of hidden states
+    Omega = np.zeros((K, N)) # ???
+
+    return Omega
+
+
+def translate_sequence_to_states2(sequence, annotation):
     N = len(sequence)
     states = np.array([])
     i = 0
     while i < N:
-        if coding[i:i+3] == 'CCC' and isStartF(sequence[i:i+3]):
+        if annotation[i: i + 3] == 'CCC' and isStartF(sequence[i: i + 3]):
             states = np.append(states, checkStart(sequence[i: i + 3])[0])
-            while coding[i: i + 3] == 'CCC' or not isStopF(sequence[i : i + 3]):
+            while annotation[i: i + 3] == 'CCC' or not isStopF(sequence[i : i + 3]):
                 states = np.append(states, [10, 11, 12], axis = 0)
                 i += 3
             states = np.append(states, checkEndF(sequence[i : i + 3]), axis = 0)
             i += 1
             
-        elif coding[i:i+3] == 'RRR' and isStartR(sequence[i:i+3]):
+        elif annotation[i:i + 3] == 'RRR' and isStartR(sequence[i:i+3]):
             if states[-1] == 24 or states[-1] == 27 or states[-1] == 30:        
-                while coding[i+1] == 'R' or not isStopR(sequence[i : i + 3]):
+                while annotation[i + 1] == 'R' or not isStopR(sequence[i : i + 3]):
                     states = np.append(states, [31, 32, 33], axis = 0)
                     i += 3
                 states = np.append(states, checkEndR(sequence[i : i + 3]), axis = 0)
@@ -183,6 +247,7 @@ def calculateA(states):
 
     return A
 
+
 def calculatePi():
     pi = np.zeros(42)
     pi[0] = 4
@@ -194,7 +259,14 @@ genomes = {}
 for i in range(1, 11):
     sequence = read_fasta_file('genome' + str(i) + '.fa')
     genomes['genome' + str(i)] = sequence['genome' + str(i)]
-    
 
-states = translate_sequence_to_states(genomes['genome1'])
-np.save('genome1.npy', states)
+annotation = read_fasta_file('true-ann1.fa')
+
+Z = createZ7(annotation['true-ann1'])
+A = createA7(Z)
+sequence = translate_observations_to_indices(genomes['genome1'])
+Phi = createPhi7(Z, sequence)
+print('Transition probabilities are', A)
+print('Emission probabilities are', Phi)
+#states = translate_sequence_to_states(genomes['genome1'])
+#np.save('genome1.npy', states)
