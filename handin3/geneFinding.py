@@ -129,12 +129,39 @@ def createPhi7(Z, sequence):
 ### END TEST FOR HMM 7 ###
 
 
-def createOmega(A, Phi, Pi, sequence):
+def viterbi(A, Phi, Pi, sequence):
     N = len(sequence) # Number of steps in the markov chain
     K = 7 # Number of hidden states
-    Omega = np.zeros((K, N)) # ???
+    Omega = np.zeros((K, N))
+    OmegaBack = np.zeros((K, N))
 
-    return Omega
+    # First column
+    for i in range(K):
+        Omega[i, 0] = Pi[i] * Phi[i, sequence[0]]
+
+    # Probably need log to make this work
+    for i in range(1, N): # Loop over the sequence
+        for j in range(K): # Loop over the hidden states
+            preMax = 0
+            argpreMax = 0
+            for k in range(K): # Loop over previous column (maybe use argmax)
+                newPreMax = Omega[k, i - 1] * A[k, j] * Phi[j, sequence[i]]
+                if newPreMax > preMax:
+                    preMax = newPreMax
+                    argpreMax = k
+            Omega[j, i] = preMax
+            OmegaBack[j, i] = argpreMax
+
+    # Now find the way back
+    Z = np.zeros(N)
+    y = np.argmax(Omega[:, N - 1]) # Last column 
+    Z[-1] = y
+
+    for i in range(N, 1):
+        y = OmegaBack[y, i]
+        Z[N - 1] = y
+
+    return Z
 
 
 def translate_sequence_to_states2(sequence, annotation):
@@ -259,14 +286,19 @@ genomes = {}
 for i in range(1, 11):
     sequence = read_fasta_file('genome' + str(i) + '.fa')
     genomes['genome' + str(i)] = sequence['genome' + str(i)]
-
 annotation = read_fasta_file('true-ann1.fa')
 
+# Test for hmm7
 Z = createZ7(annotation['true-ann1'])
 A = createA7(Z)
 sequence = translate_observations_to_indices(genomes['genome1'])
 Phi = createPhi7(Z, sequence)
+Pi = createPi7()
 print('Transition probabilities are', A)
 print('Emission probabilities are', Phi)
+Zml = viterbi(A, Phi, Pi, sequence)
+print(Zml)
+
+
 #states = translate_sequence_to_states(genomes['genome1'])
 #np.save('genome1.npy', states)
