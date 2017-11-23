@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.11.10)  23 NOV 2017 16:22
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.11.10)  23 NOV 2017 17:10
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -641,23 +641,18 @@ Underfull \hbox (badness 10000) in paragraph at lines 95--96
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 98--99
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 101--105
+Underfull \hbox (badness 10000) in paragraph at lines 103--107
 
  []
 
 <43state_model.pdf, id=7, 683.55376pt x 1101.11375pt>
 File: 43state_model.pdf Graphic file (type pdf)
  <use 43state_model.pdf>
-Package pdftex.def Info: 43state_model.pdf used on input line 120.
+Package pdftex.def Info: 43state_model.pdf used on input line 122.
 (pdftex.def)             Requested size: 376.42744pt x 606.38733pt.
 
 
-LaTeX Warning: Float too large for page by 38.2671pt on input line 123.
+LaTeX Warning: Float too large for page by 38.2671pt on input line 125.
 
 [2] [3 <./43state_model.pdf>] (./report.aux) ) 
 Here is how much of TeX's memory you used:
@@ -672,7 +667,7 @@ Here is how much of TeX's memory you used:
 st/fonts/enc/dvips/base/8r.enc}</usr/local/texlive/2017/texmf-dist/fonts/type1/
 adobe/utopia/putb8a.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/adobe/u
 topia/putr8a.pfb>
-Output written on report.pdf (3 pages, 251844 bytes).
+Output written on report.pdf (3 pages, 252056 bytes).
 PDF statistics:
  27 PDF objects out of 1000 (max. 8388607)
  18 compressed objects within 1 object stream
