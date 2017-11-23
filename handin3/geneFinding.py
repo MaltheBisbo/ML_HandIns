@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 def read_fasta_file(filename):
     """
@@ -51,7 +52,7 @@ def translate_observations_to_indices(obs):
     return [mapping[symbol.lower()] for symbol in obs]
 
 
-def translate_sequence_to_states(sequence):
+def translate_sequence_to_states_old(sequence):
     N = len(sequence)
     states = np.array([])
     i = 0
@@ -95,98 +96,102 @@ def createZ7(annotation):
     return Z
 
 
-def createA7(Z):
-    A = np.zeros((7, 7))
-    for i in range(Z.shape[0] - 1):
-        a, b = int(Z[i]), int(Z[i + 1])
-        A[a, b] += 1
+def createA(Z_list):
+    A = np.zeros((43, 43))
+    for Z in Z_list:
+        for i in range(Z.shape[0] - 1):
+            a, b = int(Z[i]), int(Z[i + 1])
+            A[a, b] += 1
 
-    for i in range(7):
+    for i in range(43):
         A[i] /= np.sum(A[i])
 
     return A
 
 
-def createPi7():
-    Pi = np.zeros(7)
-    Pi[3] = 1
+def createPi():
+    Pi = np.zeros(43)
+    Pi[0] = 1
 
     return Pi
 
 
-def createPhi7(Z, sequence):
-    Phi = np.zeros((7, 4))
-    for i in range(Z.shape[0]):
-        state = int(Z[i])
-        emission = int(sequence[i])
-        Phi[state, emission] += 1
+def createPhi(Z_list, sequence_list):
+    Phi = np.zeros((43, 4))
+    for Z, s in zip(Z_list, sequence_list):
+        for i in range(Z.shape[0]):
+            state = int(Z[i])
+            emission = int(s[i])
+            Phi[state, emission] += 1
 
-    for i in range(7):
+    for i in range(43):
         Phi[i] /= np.sum(Phi[i])
 
     return Phi
 
 ### END TEST FOR HMM 7 ###
 
+def log(x):
+    if x == 0:
+        return float('-inf')
+    return math.log(x)
 
 def viterbi(A, Phi, Pi, sequence):
     N = len(sequence) # Number of steps in the markov chain
-    K = 7 # Number of hidden states
+    K = 43 # Number of hidden states
     Omega = np.zeros((K, N))
     OmegaBack = np.zeros((K, N))
 
     # First column
     for i in range(K):
-        Omega[i, 0] = Pi[i] * Phi[i, sequence[0]]
+        Omega[i, 0] = log(Pi[i]) + log(Phi[i, sequence[0]])
 
     # Probably need log to make this work
     for i in range(1, N): # Loop over the sequence
-        for j in range(K): # Loop over the hidden states
-            preMax = 0
-            argpreMax = 0
-            for k in range(K): # Loop over previous column (maybe use argmax)
-                newPreMax = Omega[k, i - 1] * A[k, j] * Phi[j, sequence[i]]
-                if newPreMax > preMax:
-                    preMax = newPreMax
-                    argpreMax = k
-            Omega[j, i] = preMax
-            OmegaBack[j, i] = argpreMax
+        if i % 10000 == 0:
+            print('{} viterbi\r'.format(i), end='')
+        for k in range(K): # Loop over the hidden states
+            Omega[k, i] = log(Phi[k, sequence[i]]) + np.max(Omega[:, i - 1] + np.log(A[:, k]))
 
-    # Now find the way back
-    Z = np.zeros(N)
-    y = np.argmax(Omega[:, N - 1]) # Last column 
-    Z[-1] = y
-
-    for i in range(N, 1):
-        y = OmegaBack[y, i]
-        Z[N - 1] = y
-
+    np.save('OmegaTest43.npy', Omega)
+    # Backtracking
+    Z = np.zeros(len(sequence))
+    Z[-1] = np.argmax(Omega[:,-1])
+    for i in reversed(range(0, N-1)):
+        if i % 10000 == 0:
+            print('{} backtracking\r'.format(i), end='')
+        state = sequence[i+1]
+        Z[i] = np.argmax(log(Phi[int(Z[i+1]), int(state)]) + Omega[:,i] + np.log(A[:, int(Z[i+1])]))
     return Z
 
 
-def translate_sequence_to_states2(sequence, annotation):
+def translate_sequence_to_states(sequence, annotation):
     N = len(sequence)
-    states = np.array([])
+    states = np.zeros(N)
     i = 0
     while i < N:
-        if annotation[i: i + 3] == 'CCC' and isStartF(sequence[i: i + 3]):
-            states = np.append(states, checkStart(sequence[i: i + 3])[0])
-            while annotation[i: i + 3] == 'CCC' or not isStopF(sequence[i : i + 3]):
-                states = np.append(states, [10, 11, 12], axis = 0)
+        if (annotation[i-1: i + 3] == 'NCCC' or annotation[i-1: i + 3] == 'RCCC') and isStartF(sequence[i: i + 3]):
+            states[i:i+3] = checkStart(sequence[i: i + 3])[0]
+            i += 3
+            while not annotation[i: i + 4] == 'CCCN':
+                states[i:i+3] = np.array([10, 11, 12])
                 i += 3
-            states = np.append(states, checkEndF(sequence[i : i + 3]), axis = 0)
-            i += 1
-            
-        elif annotation[i:i + 3] == 'RRR' and isStartR(sequence[i:i+3]):
-            if states[-1] == 24 or states[-1] == 27 or states[-1] == 30:        
-                while annotation[i + 1] == 'R' or not isStopR(sequence[i : i + 3]):
-                    states = np.append(states, [31, 32, 33], axis = 0)
+            states[i:i+3] = checkEndF(sequence[i : i + 3])
+            i += 3
+          
+        if (annotation[i-1:i + 3] == 'NRRR' or annotation[i-1:i + 3] == 'CRRR') and isStartR(sequence[i:i+3]):
+                states[i:i+3] = checkStart(sequence[i: i + 3])[0]
+                i += 3
+                while not annotation[i : i + 4] == 'RRRN':
+                    states[i:i+3] = np.array([31, 32, 33])
                     i += 3
-                states = np.append(states, checkEndR(sequence[i : i + 3]), axis = 0)
-                i += 1
-        else:
-            states = np.append(states, [0])
+                states[i:i+3] = checkEndR(sequence[i : i + 3])
+                i += 3
+                
+        if not annotation[i-1:i + 3] == 'RCCC':
+            states[i] = 0
             i += 1
+    return states
 
         
 def isStartF(s):
@@ -279,26 +284,68 @@ def calculatePi():
     pi = np.zeros(42)
     pi[0] = 4
     pi[7] = 1
-        
 
+def convert_Z_to_ann7(Z):
+    ann = ''
+    for i in range(len(Z)):
+        if Z[i] == 3:
+            ann += 'N'
+        elif Z[i] > 3 :
+            ann += 'C'
+        elif Z[i] < 3 :
+            ann += 'R'            
+        
+    return ann
+
+def convert_Z_to_ann(Z):
+    ann = ''
+    for i in range(len(Z)):
+        if Z[i] == 0:
+            ann += 'N'
+        elif 1 <= Z[i] <= 21 :
+            ann += 'C'
+        elif 22 <= Z[i] <= 42 :
+            ann += 'R'            
+        
+    return ann
 
 genomes = {}
-for i in range(1, 11):
+annotation = {}
+Z = [None]*5
+sequence_list = [None]*5
+for i in range(1, 6):
     sequence = read_fasta_file('genome' + str(i) + '.fa')
+    sequence_list[i - 1] = translate_observations_to_indices(sequence['genome' + str(i)])
     genomes['genome' + str(i)] = sequence['genome' + str(i)]
-annotation = read_fasta_file('true-ann1.fa')
+    ann = read_fasta_file('true-ann' + str(i) + '.fa')
+    annotation['genome' + str(i)] = ann['true-ann' + str(i)]
+    # Test for hmm7
+    Z[i-1] = translate_sequence_to_states(genomes['genome' + str(i)], annotation['genome' + str(i)])
+    # Z[i-1] = createZ7(annotation['genome' + str(i)])
+    #print(Z[i-1][-10:])
 
-# Test for hmm7
-Z = createZ7(annotation['true-ann1'])
-A = createA7(Z)
-sequence = translate_observations_to_indices(genomes['genome1'])
-Phi = createPhi7(Z, sequence)
-Pi = createPi7()
-print('Transition probabilities are', A)
-print('Emission probabilities are', Phi)
+    
+A = createA(Z[:4])
+Phi = createPhi(Z[:4], sequence_list[:4])
+Pi = createPi()
+
+
+sequence = sequence_list[4]
+
+#print('Transition probabilities are', A)
+#print('Emission probabilities are', Phi)
 Zml = viterbi(A, Phi, Pi, sequence)
-print(Zml)
-
+#print(Zml[-100:])
+np.save('Z_5.npy', Zml)
 
 #states = translate_sequence_to_states(genomes['genome1'])
 #np.save('genome1.npy', states)
+
+#Omega = np.load('OmegaTest2.npy')
+#print(Omega[:,-10:].T)
+
+#Z2_7 = np.load('Ztest2_7.npy')
+ann = convert_Z_to_ann(Zml)
+file = open("pred-ann5.fa", "w")
+file.write(ann)
+file.close()
