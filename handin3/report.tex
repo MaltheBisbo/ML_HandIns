@@ -79,7 +79,29 @@ All the annotations start with an N, which is immediately translated into the hi
 In order to predict the gene structures for the sequences without annotation we have trained our model by counting. Then the Viterbi-algorithm is used to decode the sequence (X) provinding a sequence of hidden states (Z). This is then easily translated into an annotation, since hidden state '0' corresponds to 'N', 1 to 21 is 'C' and 22 to 42 is 'R'.
 
 \section{Performance of gene predictor}
-In order to train the model 5 genomes with known annotations are available. To check the performance the HMM is trained on 4 of them and then used to predict the one left out. This prediction is then compared to the correction annotation. This is done for all five permutations as shown below.
+In order to train the model 5 genomes with known annotations are available. To check the performance the HMM is trained on 4 of them and then used to predict the one left out. This prediction is then compared to the correction annotation. This is done for all five permutations, with the results for each stage of cross validation shown below. \\
+
+\textbf{Validating on genome1:} \\
+Cs   (tp=658123, fp=166731, tn=301163, fn=58582): Sn = 0.9183, Sp = 0.7979, AC = 0.5985 \\
+Rs   (tp=546592, fp=121250, tn=306046, fn=53699): Sn = 0.9105, Sp = 0.8184, AC = 0.6480 \\
+Both (tp=1204715, fp=287981, tn=247464, fn=112281): Sn = 0.9147, Sp = 0.8071, AC = 0.4359 \\
+
+\textbf{Validating on genome2:} \\
+Cs   (tp=756778, fp=154730, tn=307365, fn=57869): Sn = 0.9290, Sp = 0.8302, AC = 0.6330 \\
+Rs   (tp=796436, fp=138307, tn=305126, fn=60108): Sn = 0.9298, Sp = 0.8520, AC = 0.6527 \\
+Both (tp=1553214, fp=293037, tn=247257, fn=117977): Sn = 0.9294, Sp = 0.8413, AC = 0.4527 \\
+
+
+\textbf{Validating on genome3:} \\
+
+
+\textbf{Validating on genome4:} \\
+
+
+\textbf{Validating on genome5:} \\
+Cs   (tp=928852, fp=142151, tn=442271, fn=110668): Sn = 0.8935, Sp = 0.8673, AC = 0.6587 \\
+Rs   (tp=824584, fp=236489, tn=472544, fn=80395): Sn = 0.9112, Sp = 0.7771, AC = 0.6047 \\
+Both (tp=1753436, fp=378640, tn=361876, fn=191063): Sn = 0.9017, Sp = 0.8224, AC = 0.4336 \\
 
 \section{Model used on unknown structures}
 Finally the model is trained on all 5 known genomes and then used to predict 5 unknown genomes. The results are seen below. 
@@ -93,5 +115,11 @@ Finally the model is trained on all 5 known genomes and then used to predict 5 u
 % Example of csv table
 % \csvautotabular{softmax_confusion_matrix.csv} \\ \\ \\
 
+\begin{figure*}
+	\centering
+	\includegraphics[width=0.9\linewidth]{43state_model}
+	\caption{}
+	\label{fig:43statemodel}
+\end{figure*}
 
 \end{document}

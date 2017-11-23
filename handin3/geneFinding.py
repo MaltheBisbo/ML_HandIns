@@ -323,14 +323,20 @@ for i in range(1, 6):
     Z[i-1] = translate_sequence_to_states(genomes['genome' + str(i)], annotation['genome' + str(i)])
     # Z[i-1] = createZ7(annotation['genome' + str(i)])
     #print(Z[i-1][-10:])    
+
+    Z_train = list(Z[i] for i in [0,1,2,4])
+    sequence_list_train = list(sequence_list[i] for i in [0,1,2,4])
     
-A = createA(Z)
-Phi = createPhi(Z, sequence_list)
+A = createA(Z_train)
+Phi = createPhi(Z_train, sequence_list_train)
 Pi = createPi()
 
-np.save('A', A)
-np.save('Phi', Phi)
+Zml = viterbi(A, Phi, Pi, sequence_list[3]) 
 
+#np.save('A', A)
+#np.save('Phi', Phi)
+
+"""
 for i in range(6, 11):
     sequence = read_fasta_file('genome' + str(i) + '.fa')
     sequence_list[i - 6] = translate_observations_to_indices(sequence['genome' + str(i)])
@@ -354,7 +360,7 @@ for i in range(6):
     file.write('\n')
 
 file.close()
-    
+""" 
 #states = translate_sequence_to_states(genomes['genome1'])
 #np.save('genome1.npy', states)
 
@@ -363,6 +369,6 @@ file.close()
 
 #Z2_7 = np.load('Ztest2_7.npy')
 ann = convert_Z_to_ann(Zml)
-file = open("pred-ann5.fa", "w")
+file = open("pred-ann4.fa", "w")
 file.write(ann)
 file.close()
