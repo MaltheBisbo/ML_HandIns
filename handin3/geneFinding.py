@@ -330,7 +330,7 @@ Pi = createPi()
 
 for i in range(6, 11):
     sequence = read_fasta_file('genome' + str(i) + '.fa')
-    sequence_list[i - 1] = translate_observations_to_indices(sequence['genome' + str(i)])
+    sequence_list[i - 6] = translate_observations_to_indices(sequence['genome' + str(i)])
     #genomes['genome' + str(i)] = sequence['genome' + str(i)]
     #ann = read_fasta_file('true-ann' + str(i) + '.fa')
     #annotation['genome' + str(i)] = ann['true-ann' + str(i)]
