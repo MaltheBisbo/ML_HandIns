@@ -328,6 +328,9 @@ A = createA(Z)
 Phi = createPhi(Z, sequence_list)
 Pi = createPi()
 
+np.save('A', A)
+np.save('Phi', Phi)
+
 for i in range(6, 11):
     sequence = read_fasta_file('genome' + str(i) + '.fa')
     sequence_list[i - 6] = translate_observations_to_indices(sequence['genome' + str(i)])
