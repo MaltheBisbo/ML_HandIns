@@ -322,22 +322,36 @@ for i in range(1, 6):
     # Test for hmm7
     Z[i-1] = translate_sequence_to_states(genomes['genome' + str(i)], annotation['genome' + str(i)])
     # Z[i-1] = createZ7(annotation['genome' + str(i)])
-    #print(Z[i-1][-10:])
-
+    #print(Z[i-1][-10:])    
     
-A = createA(Z[:4])
-Phi = createPhi(Z[:4], sequence_list[:4])
+A = createA(Z)
+Phi = createPhi(Z, sequence_list)
 Pi = createPi()
 
+for i in range(6, 11):
+    sequence = read_fasta_file('genome' + str(i) + '.fa')
+    sequence_list[i - 1] = translate_observations_to_indices(sequence['genome' + str(i)])
+    #genomes['genome' + str(i)] = sequence['genome' + str(i)]
+    #ann = read_fasta_file('true-ann' + str(i) + '.fa')
+    #annotation['genome' + str(i)] = ann['true-ann' + str(i)]
+    # Test for hmm7
+    #Z[i-1] = translate_sequence_to_states(genomes['genome' + str(i)], annotation['genome' + str(i)])
 
-sequence = sequence_list[4]
+
 
 #print('Transition probabilities are', A)
 #print('Emission probabilities are', Phi)
-Zml = viterbi(A, Phi, Pi, sequence)
-#print(Zml[-100:])
-np.save('Z_5.npy', Zml)
+file = open("pred_all.fa", "w")
+for i in range(6):
+    Zml = viterbi(A, Phi, Pi, sequence_list[i])
+    np.save('Z_' + i + '.npy', Zml)
+    ann = convert_Z_to_ann(Zml)
+    file.write('> pred-ann' + str(i + 6) + '\n')
+    file.write(ann)
+    file.write('\n')
 
+file.close()
+    
 #states = translate_sequence_to_states(genomes['genome1'])
 #np.save('genome1.npy', states)
 

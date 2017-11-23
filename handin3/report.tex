@@ -68,7 +68,21 @@
 
 \maketitle % Print the title
 
-\section{PART I: Support Vector Machines}
+\section{Status of work}
+
+\section{Model structure}
+
+In order to translate the annotations into sequences of hidden states, we have used the following strategy.
+All the annotations start with an N, which is immediately translated into the hidden state 0. Then we look at the next 4 annotations. If we encounter 'NCCC' we look in the genome file and assign '0XYZ' where 'XYZ' is the corresponding start-code. If we do not recognize the start-code we simply label the next coding part as non-coding. If we have encountered a start-code we then look for 'CCC' and label it '[10, 11, 12]' until we find one of the three stop-codes. After looking for 'NCCC' we look for 'NRRR' and the procceed in the same way as for 'NCCC'. If none of the two have been found it must be an 'N' which we then label as '0'. The process is then repeated for the next base. This means that we would miss 'RRRCCC', since we look for 'NCCC' and then 'NRRR', but we have assumed that it has neglible effect.
+
+\section{Gene prediction}
+In order to predict the gene structures for the sequences without annotation we have trained our model by counting. Then the Viterbi-algorithm is used to decode the sequence (X) provinding a sequence of hidden states (Z). This is then easily translated into an annotation, since hidden state '0' corresponds to 'N', 1 to 21 is 'C' and 22 to 42 is 'R'.
+
+\section{Performance of gene predictor}
+In order to train the model 5 genomes with known annotations are available. To check the performance the HMM is trained on 4 of them and then used to predict the one left out. This prediction is then compared to the correction annotation. This is done for all five permutations as shown below.
+
+\section{Model used on unknown structures}
+Finally the model is trained on all 5 known genomes and then used to predict 5 unknown genomes. The results are seen below. 
 
 % Example of figure
 %\begin{figure}[h]
