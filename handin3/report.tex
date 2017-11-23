@@ -69,7 +69,7 @@
 \maketitle % Print the title
 
 \section{Status of work}
-
+The model worked well with AC values between 0.3 and 0.45 in the test set.
 \section{Model structure}
 
 In order to translate the annotations into sequences of hidden states, we have used the following strategy.
@@ -109,6 +109,31 @@ Both (tp=1753436, fp=378640, tn=361876, fn=191063): Sn = 0.9017, Sp = 0.8224, AC
 
 \section{Model used on unknown structures}
 Finally the model is trained on all 5 known genomes and then used to predict 5 unknown genomes. The results are seen below. 
+
+\textbf{Genome 6} \\
+Cs   (tp=757705, fp=162923, tn=305888, fn=56493): Sn = 0.9306, Sp = 0.8230, AC = 0.6251 \\
+Rs   (tp=717157, fp=127673, tn=305405, fn=56976): Sn = 0.9264, Sp = 0.8489, AC = 0.6616 \\
+Both (tp=1474862, fp=290596, tn=248912, fn=113469): Sn = 0.9286, Sp = 0.8354, AC = 0.4561 \\
+
+\textbf{Genome 7} \\
+Cs   (tp=869896, fp=235340, tn=517864, fn=78584): Sn = 0.9171, Sp = 0.7871, AC = 0.6300 \\
+Rs   (tp=814804, fp=226043, tn=512895, fn=83553): Sn = 0.9070, Sp = 0.7828, AC = 0.6219 \\
+Both (tp=1684700, fp=461383, tn=434311, fn=162137): Sn = 0.9122, Sp = 0.7850, AC = 0.4551 \\
+
+\textbf{Genome 8} \\
+Cs   (tp=708076, fp=137639, tn=350466, fn=73033): Sn = 0.9065, Sp = 0.8373, AC = 0.6447 \\
+Rs   (tp=607901, fp=169000, tn=349048, fn=74451): Sn = 0.8909, Sp = 0.7825, AC = 0.5857 \\
+Both (tp=1315977, fp=306639, tn=276015, fn=147484): Sn = 0.8992, Sp = 0.8110, AC = 0.4179 \\
+
+\textbf{Genome 9}\\
+Cs   (tp=779967, fp=205635, tn=339297, fn=86130): Sn = 0.9006, Sp = 0.7914, AC = 0.5561 \\
+Rs   (tp=759252, fp=218154, tn=332691, fn=92736): Sn = 0.8912, Sp = 0.7768, AC = 0.5270 \\
+Both (tp=1539219, fp=423789, tn=246561, fn=178866): Sn = 0.8959, Sp = 0.7841, AC = 0.3137 \\
+
+\textbf{Genome 10} \\
+Cs   (tp=613866, fp=108336, tn=251583, fn=87402): Sn = 0.8754, Sp = 0.8500, AC = 0.5833 \\
+Rs   (tp=371956, fp=137342, tn=288785, fn=50200): Sn = 0.8811, Sp = 0.7303, AC = 0.5705 \\
+Both (tp=985822, fp=245678, tn=201383, fn=137602): Sn = 0.8775, Sp = 0.8005, AC = 0.3613 \\
 
 % Example of figure
 %\begin{figure}[h]
